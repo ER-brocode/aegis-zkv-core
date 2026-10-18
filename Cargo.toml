@@ -1,0 +1,84 @@
+[package]
+name = "aegis-zkv-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["koushik4475 <koushik4475@gmail.com>"]
+description = "Hardware-Accelerated Zero-Knowledge Proof Identity Vault in Rust/WASM"
+license = "Apache-2.0 OR MIT"
+repository = "https://github.com/ER-brocode/aegis-zkv-core"
+readme = "README.md"
+keywords = ["zero-knowledge", "zk-snark", "groth16", "wasm", "identity-vault"]
+categories = ["cryptography", "wasm", "authentication"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Arkworks cryptographic primitives (BN254 curve, Groth16, R1CS)
+ark-ff = { version = "0.4.2", default-features = false }
+ark-ec = { version = "0.4.2", default-features = false }
+ark-bn254 = { version = "0.4.2", default-features = false }
+ark-relations = { version = "0.4.0", default-features = false }
+ark-r1cs-std = { version = "0.4.0", default-features = false }
+ark-snark = { version = "0.4.0", default-features = false }
+ark-groth16 = { version = "0.4.2", default-features = false, features = ["r1cs"] }
+ark-poly = { version = "0.4.2", default-features = false }
+ark-serialize = { version = "0.4.2", default-features = false, features = ["derive"] }
+ark-std = { version = "0.4.0", default-features = false }
+ark-crypto-primitives = { version = "0.4.0", default-features = false, features = ["r1cs", "sponge"] }
+
+# Multithreaded hardware acceleration (Native)
+rayon = { version = "1.8", optional = true }
+
+# WebAssembly & browser runtime support
+wasm-bindgen = { version = "0.2.92", optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
+js-sys = { version = "0.3.69", optional = true }
+
+# Serialization & Core Utilities
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+zeroize = { version = "1.7", features = ["derive"] }
+hex = "0.4"
+rand = "0.8"
+getrandom = { version = "0.2", features = ["js"] }
+subtle = "2.5"
+
+[features]
+default = ["std", "parallel", "simd"]
+std = [
+    "ark-ff/std",
+    "ark-ec/std",
+    "ark-bn254/std",
+    "ark-relations/std",
+    "ark-r1cs-std/std",
+    "ark-groth16/std",
+    "ark-poly/std",
+    "ark-serialize/std",
+    "ark-std/std",
+    "ark-crypto-primitives/std",
+]
+parallel = [
+    "std",
+    "rayon",
+    "ark-ff/parallel",
+    "ark-ec/parallel",
+    "ark-groth16/parallel",
+    "ark-std/parallel",
+    "ark-crypto-primitives/parallel",
+]
+simd = ["ark-ff/asm"]
+wasm = [
+    "wasm-bindgen",
+    "console_error_panic_hook",
+    "js-sys",
+    "std",
+]
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "zkv_benchmark"
+harness = false
